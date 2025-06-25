@@ -208,3 +208,84 @@ func get_resource_unit(resource_type: ResourceType) -> String:
 			return "units"
 		_:
 			return ""
+
+func add_resource(resource_type: ResourceType, amount: float):
+	"""Přidá konkrétní množství zdroje"""
+	current_resources[resource_type] += amount
+	
+	# Clamp to max capacity
+	current_resources[resource_type] = min(
+		current_resources[resource_type], 
+		max_capacity[resource_type]
+	)
+	
+	# Emit signal
+	resource_changed.emit(resource_type, current_resources[resource_type])
+	
+	# Check if full
+	if current_resources[resource_type] >= max_capacity[resource_type]:
+		resource_full.emit(resource_type)
+
+func remove_resource(resource_type: ResourceType, amount: float):
+	"""Odebere konkrétní množství zdroje"""
+	var old_amount = current_resources[resource_type]
+	current_resources[resource_type] = max(0, current_resources[resource_type] - amount)
+	
+	# Emit signal
+	resource_changed.emit(resource_type, current_resources[resource_type])
+	
+	# Check if depleted
+	if current_resources[resource_type] <= 0.0 and old_amount > 0.0:
+		resource_depleted.emit(resource_type)
+
+func has_enough_resource(resource_type: ResourceType, amount: float) -> bool:
+	"""Kontroluje zda má dostatek konkrétního zdroje"""
+	return current_resources[resource_type] >= amount
+
+func get_resource_percentage(resource_type: ResourceType) -> float:
+	"""Vrátí procenta naplnění zdroje (0.0 - 1.0)"""
+	return current_resources[resource_type] / max_capacity[resource_type]
+
+func is_resource_critical(resource_type: ResourceType, threshold: float = 0.2) -> bool:
+	"""Kontroluje zda je zdroj pod kritickou úrovní"""
+	return get_resource_percentage(resource_type) < threshold
+
+func get_total_resources_value() -> float:
+	"""Vrátí celkovou hodnotu všech zdrojů (pro scoring)"""
+	var total = 0.0
+	for resource_type in current_resources:
+		total += current_resources[resource_type]
+	return total
+
+func get_resource_status_text(resource_type: ResourceType) -> String:
+	"""Vrátí textový status zdroje"""
+	var amount = current_resources[resource_type]
+	var max_amount = max_capacity[resource_type]
+	var net_rate = get_net_rate(resource_type)
+	var rate_text = ""
+	
+	if net_rate > 0:
+		rate_text = " (+%.1f/s)" % net_rate
+	elif net_rate < 0:
+		rate_text = " (%.1f/s)" % net_rate
+	else:
+		rate_text = " (±0/s)"
+	
+	return "%.1f/%.1f %s%s" % [amount, max_amount, get_resource_unit(resource_type), rate_text]
+
+# Pro debug a testing
+func debug_set_resource(resource_type: ResourceType, amount: float):
+	"""Nastavi zdroj na konkrétní hodnotu (pro debugging)"""
+	current_resources[resource_type] = clamp(amount, 0.0, max_capacity[resource_type])
+	resource_changed.emit(resource_type, current_resources[resource_type])
+
+func debug_add_all_resources(amount: float):
+	"""Přidá množství ke všem zdrojům (pro debugging)"""
+	for resource_type in ResourceType.values():
+		add_resource(resource_type, amount)
+
+func debug_deplete_resource(resource_type: ResourceType):
+	"""Vyčerpá konkrétní zdroj (pro debugging)"""
+	current_resources[resource_type] = 0.0
+	resource_changed.emit(resource_type, 0.0)
+	resource_depleted.emit(resource_type)

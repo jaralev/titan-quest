@@ -473,3 +473,203 @@ func create_placeholder_sprite(sprite: Sprite2D, size: Vector2i):
 	var texture = ImageTexture.new()
 	texture.create_from_image(image)
 	sprite.texture = texture
+
+func destroy_building(tile_pos: Vector2i):
+	# Najdi building data
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		var building_type = building_data["type"]
+		var building_def = building_definitions[building_type]
+		
+		# Odeber production/consumption
+		for resource_type in building_def["production"]:
+			resource_manager.remove_production(resource_type, building_def["production"][resource_type])
+		for resource_type in building_def["consumption"]:
+			resource_manager.remove_consumption(resource_type, building_def["consumption"][resource_type])
+		
+		# Smaž sprite
+		if "sprite" in building_data and building_data["sprite"]:
+			building_data["sprite"].queue_free()
+		
+		# Smaž ze všech tiles
+		var size = building_def["size"]
+		var start_pos = building_data["position"]
+		for x in range(start_pos.x, start_pos.x + size.x):
+			for y in range(start_pos.y, start_pos.y + size.y):
+				var key = Vector2i(x, y)
+				if key in placed_buildings:
+					placed_buildings.erase(key)
+		
+		print("Building destroyed at: ", tile_pos)
+
+func damage_building(tile_pos: Vector2i, damage_percent: float):
+	# Vizuální efekt damage (červené zabarvení apod.)
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		if "sprite" in building_data and building_data["sprite"]:
+			building_data["sprite"].modulate = Color(1, 0.5, 0.5)  # Červené zabarvení
+		print("Building damaged at: ", tile_pos, " (", damage_percent * 100, "%)")
+
+func get_all_buildings() -> Array:
+	"""Vrátí seznam pozic všech budov (pro WeatherSystem)"""
+	var building_positions = []
+	var processed_buildings = {}
+	
+	for building_pos in placed_buildings:
+		var building_data = placed_buildings[building_pos]
+		var building_id = building_data.get("id", -1)
+		
+		# Přidej jen jednou per building (multi-tile budovy mají více keys)
+		if building_id != -1 and not building_id in processed_buildings:
+			building_positions.append(building_data.get("position", building_pos))
+			processed_buildings[building_id] = true
+	
+	return building_positions
+
+func get_building_count() -> int:
+	"""Vrátí počet budov"""
+	return get_all_buildings().size()
+
+func get_buildings_by_type(building_type: BuildingType) -> Array:
+	"""Vrátí seznam budov konkrétního typu"""
+	var buildings_of_type = []
+	var processed_buildings = {}
+	
+	for building_pos in placed_buildings:
+		var building_data = placed_buildings[building_pos]
+		var building_id = building_data.get("id", -1)
+		
+		if building_id != -1 and not building_id in processed_buildings:
+			if building_data.get("type", null) == building_type:
+				buildings_of_type.append(building_data.get("position", building_pos))
+				processed_buildings[building_id] = true
+	
+	return buildings_of_type
+
+func is_building_at_position(tile_pos: Vector2i) -> bool:
+	"""Kontroluje zda je na pozici budova"""
+	return tile_pos in placed_buildings
+
+func get_building_at_position(tile_pos: Vector2i) -> Dictionary:
+	"""Vrátí data budovy na pozici"""
+	if tile_pos in placed_buildings:
+		return placed_buildings[tile_pos]
+	return {}
+
+func get_building_info_at_position(tile_pos: Vector2i) -> Dictionary:
+	"""Vrátí detailní informace o budově na pozici"""
+	if not tile_pos in placed_buildings:
+		return {}
+	
+	var building_data = placed_buildings[tile_pos]
+	var building_type = building_data.get("type", -1)
+	var building_def = building_definitions.get(building_type, {})
+	
+	return {
+		"data": building_data,
+		"definition": building_def,
+		"type": building_type,
+		"name": building_def.get("name", "Unknown"),
+		"is_damaged": building_data.get("damage", 0.0) > 0.0,
+		"damage_percent": building_data.get("damage", 0.0) * 100,
+		"operational": building_data.get("damage", 0.0) < 1.0
+	}
+
+# Vylepšené damage funkce s vizuálními efekty
+func damage_building_at_position(tile_pos: Vector2i, damage_percent: float):
+	"""Poškodí budovu na dané pozici s vizuálními efekty"""
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		
+		# Nastav damage level do building data
+		building_data["damage"] = building_data.get("damage", 0.0) + damage_percent
+		
+		# Vizuální efekt podle úrovně damage
+		if "sprite" in building_data and building_data["sprite"]:
+			var sprite = building_data["sprite"]
+			var total_damage = building_data["damage"]
+			
+			if total_damage > 0.75:  # 75%+ damage - velmi červené
+				sprite.modulate = Color(1, 0.2, 0.2)
+			elif total_damage > 0.5:  # 50%+ damage - červené
+				sprite.modulate = Color(1, 0.4, 0.4)
+			elif total_damage > 0.25:  # 25%+ damage - oranžové
+				sprite.modulate = Color(1, 0.7, 0.4)
+			else:  # Mírné poškození - žluté
+				sprite.modulate = Color(1, 1, 0.6)
+			
+			# Animace bliknutí při damage
+			var tween = create_tween()
+			tween.tween_property(sprite, "modulate:a", 0.5, 0.1)
+			tween.tween_property(sprite, "modulate:a", 1.0, 0.1)
+		
+		print("Building damaged at: ", tile_pos, " (", damage_percent * 100, "% damage, total: ", building_data["damage"] * 100, "%)")
+		
+		# Automatické zničení při vysokém damage
+		if building_data["damage"] >= 1.0:
+			print("Building auto-destroyed due to excessive damage")
+			destroy_building_at_position(tile_pos)
+
+func destroy_building_at_position(tile_pos: Vector2i):
+	"""Zničí budovu s particle efekty"""
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		var building_type = building_data["type"]
+		var building_def = building_definitions[building_type]
+		
+		print("=== DESTROYING BUILDING ===")
+		print("Type: ", building_def["name"])
+		print("Position: ", tile_pos)
+		
+		# Odeber production/consumption
+		for resource_type in building_def["production"]:
+			resource_manager.remove_production(resource_type, building_def["production"][resource_type])
+		for resource_type in building_def["consumption"]:
+			resource_manager.remove_consumption(resource_type, building_def["consumption"][resource_type])
+		
+		# Smaž sprite s animací
+		if "sprite" in building_data and building_data["sprite"]:
+			var sprite = building_data["sprite"]
+			
+			# Animace zničení
+			var tween = create_tween()
+			tween.parallel().tween_property(sprite, "modulate", Color.RED, 0.2)
+			tween.parallel().tween_property(sprite, "scale", Vector2.ZERO, 0.3)
+			tween.tween_callback(sprite.queue_free)
+		
+		# Smaž ze všech tiles
+		var size = building_def["size"]
+		var start_pos = building_data["position"]
+		for x in range(start_pos.x, start_pos.x + size.x):
+			for y in range(start_pos.y, start_pos.y + size.y):
+				var key = Vector2i(x, y)
+				if key in placed_buildings:
+					placed_buildings.erase(key)
+		
+		print("Building destroyed successfully")
+
+# Repair funkcionalita
+func repair_building_at_position(tile_pos: Vector2i, repair_amount: float = 1.0):
+	"""Opraví budovu na pozici"""
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		
+		if "damage" in building_data:
+			building_data["damage"] = max(0.0, building_data["damage"] - repair_amount)
+			
+			# Obnov normální barvu při plné opravě
+			if building_data["damage"] <= 0.0 and "sprite" in building_data:
+				building_data["sprite"].modulate = Color.WHITE
+			
+			print("Building repaired at: ", tile_pos, " (remaining damage: ", building_data["damage"] * 100, "%)")
+
+# Debug funkce
+func debug_damage_all_buildings(damage_percent: float):
+	"""Poškodí všechny budovy (pro testing)"""
+	for building_pos in get_all_buildings():
+		damage_building_at_position(Vector2i(building_pos.x, building_pos.y), damage_percent)
+
+func debug_repair_all_buildings():
+	"""Opraví všechny budovy (pro testing)"""
+	for building_pos in get_all_buildings():
+		repair_building_at_position(Vector2i(building_pos.x, building_pos.y), 1.0)

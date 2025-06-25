@@ -221,6 +221,12 @@ func _input(event):
 		print("=== MAP STATISTICS ===")
 		count_terrain_types()
 
+	if event.is_action_pressed("ui_select"):  # TAB key - debug weather
+		var weather_system = get_node("WeatherSystem")
+		if weather_system:
+			weather_system.trigger_random_disaster()
+			print("Debug: Triggered random disaster")
+		
 func reset_game_state():
 	"""Resetuje celý herní stav na začátek"""
 	print("=== RESETTING GAME STATE ===")
