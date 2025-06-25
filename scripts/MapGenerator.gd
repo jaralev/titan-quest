@@ -208,6 +208,11 @@ func _input(event):
 	"""Input handling pro testování"""
 	if event.is_action_pressed("ui_accept"):  # SPACE nebo ENTER
 		print("=== REGENERATING MAP ===")
+		
+		# Reset všech systémů
+		reset_game_state()
+		
+		# Regeneruj mapu
 		generate_map()
 		render_map()
 		print("Map regenerated!")
@@ -215,6 +220,22 @@ func _input(event):
 	if event.is_action_pressed("ui_cancel"):  # ESC
 		print("=== MAP STATISTICS ===")
 		count_terrain_types()
+
+func reset_game_state():
+	"""Resetuje celý herní stav na začátek"""
+	print("=== RESETTING GAME STATE ===")
+	
+	# Reset resources
+	if has_node("/root/ResourceManager"):
+		var resource_manager = get_node("/root/ResourceManager")
+		resource_manager.reset_to_initial_state()
+	
+	# Reset buildings
+	if has_node("BuildingSystem"):
+		var building_system = get_node("BuildingSystem")
+		building_system.reset_buildings()
+	
+	print("Game state reset complete")
 
 func count_terrain_types():
 	"""Spočítá a vypíše statistiky terénu"""
