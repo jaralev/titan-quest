@@ -1,4 +1,4 @@
-# TileInspector.gd - Bezpečná verze bez nekonečných tween smyček
+# TileInspector.gd - Systém pro zobrazení detailů dlaždic a budov
 extends Node2D
 
 # Reference na ostatní systémy
@@ -17,12 +17,12 @@ var is_panel_visible = false
 var is_dragging = false
 var drag_offset = Vector2.ZERO
 
-# Highlight system - zjednodušeno
+# Highlight system
 var highlight_elements: Array = []
 var current_tile_pos: Vector2i
 
 func _ready():
-	print("TileInspector (Safe) initialized")
+	print("TileInspector initialized")
 	create_info_panel()
 	set_process_input(true)
 	
@@ -40,7 +40,7 @@ func _input(event):
 				return
 			
 			# Jen pokud NENÍ building mode
-			if building_system and not building_system.is_building_mode:
+			if building_system and not building_system.is_building_mode and not building_system.is_repair_mode:
 				var mouse_pos = get_global_mouse_position()
 				var tile_pos = tilemap.local_to_map(tilemap.to_local(mouse_pos))
 				print("Inspecting tile: ", tile_pos)
@@ -79,7 +79,7 @@ func create_tile_highlight(tile_pos: Vector2i):
 	get_parent().add_child(highlight)
 	highlight_elements.append(highlight)
 	
-	# Jednoduchá animace fade-in místo nekonečné smyčky
+	# Jednoduchá animace fade-in
 	highlight.modulate.a = 0.0
 	var tween = create_tween()
 	tween.tween_property(highlight, "modulate:a", 0.5, 0.3)
@@ -189,21 +189,66 @@ func inspect_terrain(tile_pos: Vector2i):
 	info_label.text = info_text
 
 func generate_building_info(building_data: Dictionary, building_def: Dictionary) -> String:
-	"""Generuje info o budově"""
+	"""Generuje info o budově s repair informacemi"""
 	var name = building_def.get("name", "Unknown Building")
 	var position = building_data.get("position", Vector2i.ZERO)
 	var building_type = building_data.get("type", -1)
 	var damage = building_data.get("damage", 0.0)
+	var durability = building_data.get("durability", 1.0)
 	
 	var text = "[center][color=cyan][font_size=16][b]%s[/b][/font_size][/color][/center]\n\n" % name
 	text += "[color=yellow]Position:[/color] %s\n" % str(position)
+	text += "[color=yellow]Size:[/color] %dx%d tiles\n" % [building_def.get("size", Vector2i(1,1)).x, building_def.get("size", Vector2i(1,1)).y]
 	
-	# Physical condition
+	# Physical condition with repair info
 	if damage > 0:
 		var damage_color = "red" if damage > 0.5 else "orange"
 		text += "[color=%s]Physical Damage:[/color] %.0f%%\n" % [damage_color, damage * 100]
+		text += "[color=%s]Condition:[/color] %s\n" % [damage_color, building_system.get_condition_text(damage)]
+		
+		# Repair cost info
+		if building_system.can_repair_building(Vector2i(position.x, position.y)):
+			text += "[color=green]✓ Can be repaired[/color]\n"
+			var repair_cost = building_def.get("repair_cost", {})
+			if repair_cost.size() > 0:
+				text += "[color=gray]Repair cost:[/color] "
+				var cost_parts = []
+				for resource_type in repair_cost:
+					var resource_name = resource_manager.get_resource_name(resource_type)
+					var cost = repair_cost[resource_type]
+					cost_parts.append("%d %s" % [cost, resource_name])
+				text += " • ".join(cost_parts) + "\n"
+		else:
+			text += "[color=red]✗ Cannot repair (insufficient resources)[/color]\n"
 	else:
-		text += "[color=green]Physical Condition:[/color] Intact\n"
+		text += "[color=green]Physical Condition:[/color] Excellent\n"
+	
+	# Durability rating
+	var durability_color = "green"
+	var durability_text = "Very High"
+	if durability < 0.9:
+		durability_color = "lime"
+		durability_text = "High"
+	if durability < 0.7:
+		durability_color = "yellow"
+		durability_text = "Medium"
+	if durability < 0.5:
+		durability_color = "orange"
+		durability_text = "Low"
+	
+	text += "[color=%s]Durability:[/color] %s (%.0f%%)\n" % [durability_color, durability_text, durability * 100]
+	
+	# Efficiency
+	var efficiency = building_system.get_building_efficiency(Vector2i(position.x, position.y))
+	var efficiency_color = "green"
+	if efficiency < 0.8:
+		efficiency_color = "yellow"
+	if efficiency < 0.5:
+		efficiency_color = "orange"
+	if efficiency < 0.3:
+		efficiency_color = "red"
+	
+	text += "[color=%s]Operating Efficiency:[/color] %.0f%%\n" % [efficiency_color, efficiency * 100]
 	
 	# Weather effects
 	if weather_system:
@@ -211,22 +256,63 @@ func generate_building_info(building_data: Dictionary, building_def: Dictionary)
 		var weather_color = weather_system.get_building_weather_status_color(building_type)
 		text += "[color=%s]Weather Status:[/color] %s\n" % [weather_color, weather_status]
 	
-	# Production & Consumption
+	# Production & Consumption with efficiency modifiers
 	var production = building_def.get("production", {})
 	if production.size() > 0:
 		text += "\n[color=green][b]Production:[/b][/color]\n"
 		for resource_type in production:
-			var amount = production[resource_type]
+			var base_amount = production[resource_type]
+			var effective_amount = base_amount * efficiency
 			var resource_name = resource_manager.get_resource_name(resource_type)
-			text += "  [color=lime]▲[/color] %.1f %s/s\n" % [amount, resource_name]
+			
+			if efficiency < 1.0:
+				text += "  [color=lime]▲[/color] %.1f %s/s [color=gray](%.1f base)[/color]\n" % [effective_amount, resource_name, base_amount]
+			else:
+				text += "  [color=lime]▲[/color] %.1f %s/s\n" % [base_amount, resource_name]
 	
 	var consumption = building_def.get("consumption", {})
 	if consumption.size() > 0:
 		text += "\n[color=orange][b]Consumption:[/b][/color]\n"
 		for resource_type in consumption:
-			var amount = consumption[resource_type]
+			var base_amount = consumption[resource_type]
+			var effective_amount = base_amount * efficiency
 			var resource_name = resource_manager.get_resource_name(resource_type)
-			text += "  [color=red]▼[/color] %.1f %s/s\n" % [amount, resource_name]
+			
+			# Weather effects on consumption
+			var weather_modified = false
+			if weather_system and resource_name == "Energy":
+				var weather_effects = weather_system.get_weather_effect_on_building(building_type)
+				if "energy_consumption" in weather_effects:
+					var modifier = weather_effects["energy_consumption"].get("modifier", 1.0)
+					effective_amount *= modifier
+					weather_modified = true
+			
+			if efficiency < 1.0 or weather_modified:
+				var modifiers = []
+				if efficiency < 1.0:
+					modifiers.append("damage")
+				if weather_modified:
+					modifiers.append("weather")
+				text += "  [color=red]▼[/color] %.1f %s/s [color=gray](%.1f base, +%s)[/color]\n" % [effective_amount, resource_name, base_amount, " + ".join(modifiers)]
+			else:
+				text += "  [color=red]▼[/color] %.1f %s/s\n" % [base_amount, resource_name]
+	
+	# Special building info
+	if building_type == building_system.BuildingType.VESSEL:
+		text += "\n[color=gold][b]🚀 ESCAPE VESSEL[/b][/color]\n"
+		text += "[color=gold]This vessel will allow escape from Titan![/color]\n"
+	
+	# Placement restrictions info
+	var restriction = building_def.get("placement_restriction", "any")
+	if restriction != "any":
+		text += "\n[color=yellow][b]Special Placement:[/b][/color]\n"
+		match restriction:
+			"near_methane":
+				text += "[color=yellow]Must be near methane source[/color]\n"
+			"near_mountains":
+				text += "[color=yellow]Must be near ice mountains[/color]\n"
+			"methane_sea_only":
+				text += "[color=yellow]Must be built on methane sea[/color]\n"
 	
 	text += "\n[color=gray][i]Drag to move • Right-click to close[/i][/color]"
 	return text
@@ -244,6 +330,10 @@ func generate_terrain_info(tile_pos: Vector2i, terrain_type: int) -> String:
 	else:
 		text += "[color=red]✗ Cannot build here[/color]\n"
 	
+	# Description
+	text += "\n[color=white][b]Description:[/b][/color]\n"
+	text += "[color=lightgray]%s[/color]\n" % get_terrain_description(terrain_type)
+	
 	text += "\n[color=gray][i]Drag to move • Right-click to close[/i][/color]"
 	return text
 
@@ -252,11 +342,27 @@ func get_terrain_name(terrain_type: int) -> String:
 		return "Unknown"
 	
 	match terrain_type:
-		map_generator.TerrainType.NORMAL_SURFACE: return "Rocky Ground"
+		map_generator.TerrainType.NORMAL_SURFACE: return "Normal Surface"
 		map_generator.TerrainType.METHANE_LAKE: return "Methane Lake"
 		map_generator.TerrainType.METHANE_SEA: return "Methane Sea"
-		map_generator.TerrainType.ICE_MOUNTAINS: return "Mountain"
+		map_generator.TerrainType.ICE_MOUNTAINS: return "Ice Mountains"
 		_: return "Unknown Terrain"
+
+func get_terrain_description(terrain_type: int) -> String:
+	if not map_generator:
+		return "Unknown terrain."
+	
+	match terrain_type:
+		map_generator.TerrainType.NORMAL_SURFACE:
+			return "Solid rocky ground typical of Titan's surface."
+		map_generator.TerrainType.METHANE_LAKE:
+			return "Liquid methane body. Rich in resources."
+		map_generator.TerrainType.METHANE_SEA:
+			return "Large methane sea. Impassable terrain."
+		map_generator.TerrainType.ICE_MOUNTAINS:
+			return "Elevated icy mountains. Good for drilling operations."
+		_:
+			return "Unknown terrain type."
 
 func can_build_on_terrain(terrain_type: int) -> bool:
 	if not map_generator:
@@ -265,11 +371,11 @@ func can_build_on_terrain(terrain_type: int) -> bool:
 	return terrain_type == map_generator.TerrainType.NORMAL_SURFACE or \
 		   terrain_type == map_generator.TerrainType.ICE_MOUNTAINS
 
-# UI Management functions (same as before)
+# UI Management functions
 func create_info_panel():
 	info_panel = PanelContainer.new()
-	info_panel.position = Vector2(1500, 40)
-	info_panel.size = Vector2(350, 400)
+	info_panel.position = Vector2(10, 300)
+	info_panel.size = Vector2(350, 200)
 	info_panel.visible = false
 	info_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	info_panel.z_index = 1000

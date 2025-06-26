@@ -23,6 +23,7 @@ ResourceManager="*res://scripts/ResourceManager.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=640
+window/size/mode=2
 
 [dotnet]
 

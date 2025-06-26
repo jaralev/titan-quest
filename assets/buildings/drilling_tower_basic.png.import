@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b6lx1hwropyws"
-path="res://.godot/imported/water_extractor.png-a5fefdbe8be904fdc03fea6bf7c06a4a.ctex"
+uid="uid://bp6armlkgbc1l"
+path="res://.godot/imported/drilling_tower_basic.png-b89e3e170baf7f51604eb24441be6143.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/buildings/water_extractor.png"
-dest_files=["res://.godot/imported/water_extractor.png-a5fefdbe8be904fdc03fea6bf7c06a4a.ctex"]
+source_file="res://assets/buildings/drilling_tower_basic.png"
+dest_files=["res://.godot/imported/drilling_tower_basic.png-b89e3e170baf7f51604eb24441be6143.ctex"]
 
 [params]
 

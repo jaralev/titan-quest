@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cib314iwpbnb3"
-path="res://.godot/imported/farm.png-31e668cab25592a522f66a6a53aabad5.ctex"
+uid="uid://bufkyjgr0lbj1"
+path="res://.godot/imported/water_extractor_advanced.png-7529fc9059c8cad87bc069e46b1fec18.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/buildings/farm.png"
-dest_files=["res://.godot/imported/farm.png-31e668cab25592a522f66a6a53aabad5.ctex"]
+source_file="res://assets/buildings/water_extractor_advanced.png"
+dest_files=["res://.godot/imported/water_extractor_advanced.png-7529fc9059c8cad87bc069e46b1fec18.ctex"]
 
 [params]
 

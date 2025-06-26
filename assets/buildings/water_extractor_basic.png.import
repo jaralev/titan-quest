@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b28tcabjot3c6"
-path="res://.godot/imported/power-generator.png-53d897149be43cef76856c7c7b5d52b9.ctex"
+uid="uid://36meartu2tbd"
+path="res://.godot/imported/water_extractor_basic.png-c40431ccafbf633543e9ba93203dd1dd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/buildings/power-generator.png"
-dest_files=["res://.godot/imported/power-generator.png-53d897149be43cef76856c7c7b5d52b9.ctex"]
+source_file="res://assets/buildings/water_extractor_basic.png"
+dest_files=["res://.godot/imported/water_extractor_basic.png-c40431ccafbf633543e9ba93203dd1dd.ctex"]
 
 [params]
 
