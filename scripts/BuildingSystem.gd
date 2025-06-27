@@ -29,7 +29,7 @@ var building_definitions = {
 		"name": "Habitat",
 		"size": Vector2i(3, 3),
 		"cost": {
-			ResourceManager.ResourceType.BUILDING_MATERIALS: 50,  # Výrazně dražší
+			ResourceManager.ResourceType.BUILDING_MATERIALS: 50,
 			ResourceManager.ResourceType.ENERGY: 100,
 			ResourceManager.ResourceType.WATER: 20,
 			ResourceManager.ResourceType.OXYGEN: 30
@@ -42,7 +42,7 @@ var building_definitions = {
 			ResourceManager.ResourceType.FOOD: 1.5,
 			ResourceManager.ResourceType.WATER: 1.0
 		},
-		"durability": 1.0,  # Nejvyšší odolnost
+		"durability": 1.0,
 		"repair_cost": {
 			ResourceManager.ResourceType.BUILDING_MATERIALS: 10,
 			ResourceManager.ResourceType.ENERGY: 20
@@ -59,12 +59,12 @@ var building_definitions = {
 			ResourceManager.ResourceType.METHANE: 10
 		},
 		"production": {
-			ResourceManager.ResourceType.ENERGY: 3.0  # Méně než advanced
+			ResourceManager.ResourceType.ENERGY: 3.0
 		},
 		"consumption": {
 			ResourceManager.ResourceType.METHANE: 1.2
 		},
-		"durability": 0.6,  # Křehčí
+		"durability": 0.6,
 		"repair_cost": {
 			ResourceManager.ResourceType.BUILDING_MATERIALS: 5,
 			ResourceManager.ResourceType.ENERGY: 10
@@ -75,17 +75,17 @@ var building_definitions = {
 		"name": "Advanced Power Generator",
 		"size": Vector2i(2, 2),
 		"cost": {
-			ResourceManager.ResourceType.BUILDING_MATERIALS: 35,  # Dražší
+			ResourceManager.ResourceType.BUILDING_MATERIALS: 35,
 			ResourceManager.ResourceType.METHANE: 25,
 			ResourceManager.ResourceType.ENERGY: 15
 		},
 		"production": {
-			ResourceManager.ResourceType.ENERGY: 6.0  # Více produkce
+			ResourceManager.ResourceType.ENERGY: 6.0
 		},
 		"consumption": {
-			ResourceManager.ResourceType.METHANE: 1.0  # Efektivnější
+			ResourceManager.ResourceType.METHANE: 1.0
 		},
-		"durability": 0.9,  # Odolnější
+		"durability": 0.9,
 		"repair_cost": {
 			ResourceManager.ResourceType.BUILDING_MATERIALS: 8,
 			ResourceManager.ResourceType.ENERGY: 15
@@ -93,7 +93,7 @@ var building_definitions = {
 		"placement_restriction": "any"
 	},
 	
-	# FARMS (přejmenované z Hydroponic Farm)
+	# FARMS
 	BuildingType.FARM_BASIC: {
 		"name": "Basic Farm",
 		"size": Vector2i(2, 2),
@@ -129,7 +129,7 @@ var building_definitions = {
 			ResourceManager.ResourceType.OXYGEN: 0.8
 		},
 		"consumption": {
-			ResourceManager.ResourceType.ENERGY: 1.8,  # Efektivnější
+			ResourceManager.ResourceType.ENERGY: 1.8,
 			ResourceManager.ResourceType.WATER: 1.0
 		},
 		"durability": 0.8,
@@ -173,7 +173,7 @@ var building_definitions = {
 			ResourceManager.ResourceType.WATER: 5.0
 		},
 		"consumption": {
-			ResourceManager.ResourceType.ENERGY: 3.0  # Efektivnější
+			ResourceManager.ResourceType.ENERGY: 3.0
 		},
 		"durability": 0.85,
 		"repair_cost": {
@@ -183,7 +183,7 @@ var building_definitions = {
 		"placement_restriction": "any"
 	},
 	
-	# METHANE PROCESSORS (vyžadují blízkost jezera/moře)
+	# METHANE PROCESSORS
 	BuildingType.METHANE_PROCESSOR_BASIC: {
 		"name": "Basic Methane Processor",
 		"size": Vector2i(2, 2),
@@ -201,7 +201,7 @@ var building_definitions = {
 			ResourceManager.ResourceType.BUILDING_MATERIALS: 5,
 			ResourceManager.ResourceType.ENERGY: 10
 		},
-		"placement_restriction": "near_methane"  # Nové omezení
+		"placement_restriction": "near_methane"
 	},
 	BuildingType.METHANE_PROCESSOR_ADVANCED: {
 		"name": "Advanced Methane Processor",
@@ -224,7 +224,7 @@ var building_definitions = {
 		"placement_restriction": "near_methane"
 	},
 	
-	# DRILLING TOWERS (nová budova - pouze u hor)
+	# DRILLING TOWERS
 	BuildingType.DRILLING_TOWER_BASIC: {
 		"name": "Basic Drilling Tower",
 		"size": Vector2i(2, 2),
@@ -238,12 +238,12 @@ var building_definitions = {
 		"consumption": {
 			ResourceManager.ResourceType.ENERGY: 4.0
 		},
-		"durability": 0.4,  # Nejkřehčí - těžká práce
+		"durability": 0.4,
 		"repair_cost": {
 			ResourceManager.ResourceType.BUILDING_MATERIALS: 8,
 			ResourceManager.ResourceType.ENERGY: 15
 		},
-		"placement_restriction": "near_mountains"  # Nové omezení
+		"placement_restriction": "near_mountains"
 	},
 	BuildingType.DRILLING_TOWER_ADVANCED: {
 		"name": "Advanced Drilling Tower",
@@ -257,7 +257,7 @@ var building_definitions = {
 			ResourceManager.ResourceType.BUILDING_MATERIALS: 3.5
 		},
 		"consumption": {
-			ResourceManager.ResourceType.ENERGY: 3.5  # Efektivnější
+			ResourceManager.ResourceType.ENERGY: 3.5
 		},
 		"durability": 0.7,
 		"repair_cost": {
@@ -267,10 +267,10 @@ var building_definitions = {
 		"placement_restriction": "near_mountains"
 	},
 	
-	# VESSEL (vítězná budova)
+	# VESSEL
 	BuildingType.VESSEL: {
 		"name": "Escape Vessel",
-		"size": Vector2i(2, 3),  # Velká budova
+		"size": Vector2i(2, 3),
 		"cost": {
 			ResourceManager.ResourceType.BUILDING_MATERIALS: 1000,
 			ResourceManager.ResourceType.ENERGY: 1000,
@@ -281,9 +281,9 @@ var building_definitions = {
 		},
 		"production": {},
 		"consumption": {},
-		"durability": 1.0,  # Nepoškoditelná
-		"repair_cost": {},  # Nelze opravovat
-		"placement_restriction": "methane_sea_only"  # Pouze na moři
+		"durability": 1.0,
+		"repair_cost": {},
+		"placement_restriction": "methane_sea_only"
 	}
 }
 
@@ -295,8 +295,21 @@ var placed_buildings = {}
 @onready var map_generator: Node2D = get_parent()
 @onready var tilemap: TileMap = get_parent().get_node("TileMap")
 
-# Building mode
-var is_building_mode = false
+# Building mode - s tichým sledováním
+var _is_building_mode = false
+var is_building_mode: bool:
+	get:
+		return _is_building_mode
+	set(value):
+		_is_building_mode = value
+
+var _is_repair_mode = false  
+var is_repair_mode: bool:
+	get:
+		return _is_repair_mode
+	set(value):
+		_is_repair_mode = value
+
 var selected_building_type = BuildingType.HABITAT
 var building_preview_tiles = []
 
@@ -307,8 +320,7 @@ var preview_outline: Array[ColorRect] = []
 var building_sprites = []
 var building_textures = {}
 
-# Repair mode
-var is_repair_mode = false
+# Repair mode je nyní definovaný výše s debug sledováním
 
 func _ready():
 	print("Enhanced BuildingSystem initialized")
@@ -357,18 +369,27 @@ func load_building_textures():
 	for building_type in building_textures:
 		print("  - ", building_definitions[building_type]["name"])
 
+# Reset flag - pro ochranu před aktivací během resetu
+var _is_resetting = false
+
 func enter_building_mode(building_type: BuildingType):
 	"""Vstoupí do building módu"""
+	# OCHRANA: Ignoruj volání během resetu
+	if _is_resetting:
+		return
+	
 	is_building_mode = true
 	is_repair_mode = false
 	selected_building_type = building_type
-	print("Entered building mode: ", building_definitions[building_type]["name"])
 
 func enter_repair_mode():
 	"""Vstoupí do repair módu"""
+	# OCHRANA: Ignoruj volání během resetu
+	if _is_resetting:
+		return
+		
 	is_repair_mode = true
 	is_building_mode = false
-	print("Entered repair mode")
 
 func exit_building_mode():
 	"""Opustí building/repair mód"""
@@ -376,6 +397,25 @@ func exit_building_mode():
 	is_repair_mode = false
 	clear_building_preview()
 	print("Exited building/repair mode")
+
+func force_exit_all_modes():
+	"""Force vypne všechny módy - pro reset"""
+	print("=== FORCE EXITING ALL MODES ===")
+	
+	# Explicitně vypni všechny módy
+	is_building_mode = false
+	is_repair_mode = false
+	
+	# Vyčisti všechny preview
+	clear_building_preview()
+	
+	# Reset selected type
+	selected_building_type = BuildingType.HABITAT
+	
+	# Clear any potential preview arrays
+	building_preview_tiles.clear()
+	
+	print("All modes force exited: building=", is_building_mode, ", repair=", is_repair_mode)
 
 func _input(event):
 	"""Input handling pro building system"""
@@ -434,11 +474,11 @@ func attempt_place_building(tile_pos: Vector2i) -> bool:
 
 func attempt_repair_building(tile_pos: Vector2i) -> bool:
 	"""Pokusí se opravit budovu na pozici"""
-	if not is_building_at_position(tile_pos):
+	if not tile_pos in placed_buildings:
 		print("No building to repair at: ", tile_pos)
 		return false
 	
-	var building_data = get_building_at_position(tile_pos)
+	var building_data = placed_buildings[tile_pos]
 	var building_type = building_data.get("type", -1)
 	var building_def = building_definitions[building_type]
 	var current_damage = building_data.get("damage", 0.0)
@@ -468,22 +508,18 @@ func check_placement_restriction(tile_pos: Vector2i, building_def: Dictionary) -
 	match restriction:
 		"any":
 			return true
-		
 		"near_methane":
 			return is_near_methane_source(tile_pos, building_def["size"])
-		
 		"near_mountains":
 			return is_near_mountains(tile_pos, building_def["size"])
-		
 		"methane_sea_only":
 			return is_on_methane_sea(tile_pos, building_def["size"])
-		
 		_:
 			return true
 
 func is_near_methane_source(tile_pos: Vector2i, size: Vector2i) -> bool:
 	"""Kontroluje zda je budova blízko methane jezera nebo moře"""
-	var search_radius = 1  # Hledej v okruhu 1 dlaždice
+	var search_radius = 1
 	
 	for x in range(tile_pos.x - search_radius, tile_pos.x + size.x + search_radius):
 		for y in range(tile_pos.y - search_radius, tile_pos.y + size.y + search_radius):
@@ -498,7 +534,7 @@ func is_near_methane_source(tile_pos: Vector2i, size: Vector2i) -> bool:
 
 func is_near_mountains(tile_pos: Vector2i, size: Vector2i) -> bool:
 	"""Kontroluje zda je drilling tower blízko hor"""
-	var search_radius = 1  # Hledej v okruhu 1 dlaždice
+	var search_radius = 1
 	
 	for x in range(tile_pos.x - search_radius, tile_pos.x + size.x + search_radius):
 		for y in range(tile_pos.y - search_radius, tile_pos.y + size.y + search_radius):
@@ -519,7 +555,7 @@ func is_on_methane_sea(tile_pos: Vector2i, size: Vector2i) -> bool:
 			
 			var terrain_type = map_generator.terrain_grid[x][y]
 			if terrain_type != map_generator.TerrainType.METHANE_SEA:
-				print("Vessel must be built entirely on methane sea")
+				# print("Vessel must be built entirely on methane sea")
 				return false
 	
 	return true
@@ -567,7 +603,7 @@ func calculate_weather_damage_modifier(building_type: BuildingType) -> float:
 	var durability = building_def.get("durability", 1.0)
 	
 	# Čím nižší durability, tím vyšší šance na poškození
-	return 2.0 - durability  # 0.6 durability = 1.4x damage, 0.4 durability = 1.6x damage
+	return 2.0 - durability
 
 func place_building(tile_pos: Vector2i, building_type: BuildingType):
 	"""Umístí budovu na mapu"""
@@ -802,7 +838,7 @@ func damage_building_at_position(tile_pos: Vector2i, damage_percent: float):
 		var durability = building_data.get("durability", 1.0)
 		
 		# Aplikuj damage s modifikátorem durability
-		var actual_damage = damage_percent * (2.0 - durability)  # Nižší durability = vyšší damage
+		var actual_damage = damage_percent * (2.0 - durability)
 		building_data["damage"] = building_data.get("damage", 0.0) + actual_damage
 		
 		# Vizuální efekty podle úrovně damage
@@ -865,6 +901,48 @@ func destroy_building_at_position(tile_pos: Vector2i):
 				var key = Vector2i(x, y)
 				if key in placed_buildings:
 					placed_buildings.erase(key)
+
+# RESET SYSTEM - ENHANCED
+func reset_buildings():
+	"""Resetuje všechny budovy a režimy"""
+	print("=== RESETTING ENHANCED BUILDINGS ===")
+	
+	# AKTIVUJ RESET FLAG - blokuje aktivaci building mode
+	_is_resetting = true
+	
+	# NEJDŘÍV resetuj módy - předejde reactivaci
+	print("Resetting building modes FIRST...")
+	is_building_mode = false
+	is_repair_mode = false
+	selected_building_type = BuildingType.HABITAT
+	
+	# Vyčištění preview před mazáním sprites
+	clear_building_preview()
+	
+	# Reset všech sprite objektů
+	print("Clearing building sprites...")
+	for sprite in building_sprites:
+		if sprite and is_instance_valid(sprite):
+			sprite.queue_free()
+	building_sprites.clear()
+	
+	# Reset umístěných budov - BEZ produkce/spotřeby removal!
+	print("Clearing building data...")
+	placed_buildings.clear()
+	
+	# Reset building preview arrays
+	building_preview_tiles.clear()
+	
+	# Force garbage collection
+	await get_tree().process_frame
+	
+	# DEAKTIVUJ RESET FLAG po krátkém čekání
+	await get_tree().create_timer(0.1).timeout
+	_is_resetting = false
+	
+	print("All enhanced buildings reset")
+	print("Building modes reset: building_mode=", is_building_mode, ", repair_mode=", is_repair_mode)
+	print("Selected building type: ", selected_building_type)
 
 # UTILITY FUNCTIONS
 func get_building_repair_cost(tile_pos: Vector2i) -> Dictionary:
@@ -946,21 +1024,19 @@ func get_buildings_needing_repair() -> Array:
 # ENHANCED BUILDING QUERIES
 func get_building_variants(base_type: String) -> Array:
 	"""Vrátí varianty budovy (basic/advanced)"""
-	var variants = []
-	
 	match base_type:
 		"POWER_GENERATOR":
-			variants = [BuildingType.POWER_GENERATOR_BASIC, BuildingType.POWER_GENERATOR_ADVANCED]
+			return [BuildingType.POWER_GENERATOR_BASIC, BuildingType.POWER_GENERATOR_ADVANCED]
 		"FARM":
-			variants = [BuildingType.FARM_BASIC, BuildingType.FARM_ADVANCED]
+			return [BuildingType.FARM_BASIC, BuildingType.FARM_ADVANCED]
 		"WATER_EXTRACTOR":
-			variants = [BuildingType.WATER_EXTRACTOR_BASIC, BuildingType.WATER_EXTRACTOR_ADVANCED]
+			return [BuildingType.WATER_EXTRACTOR_BASIC, BuildingType.WATER_EXTRACTOR_ADVANCED]
 		"METHANE_PROCESSOR":
-			variants = [BuildingType.METHANE_PROCESSOR_BASIC, BuildingType.METHANE_PROCESSOR_ADVANCED]
+			return [BuildingType.METHANE_PROCESSOR_BASIC, BuildingType.METHANE_PROCESSOR_ADVANCED]
 		"DRILLING_TOWER":
-			variants = [BuildingType.DRILLING_TOWER_BASIC, BuildingType.DRILLING_TOWER_ADVANCED]
-	
-	return variants
+			return [BuildingType.DRILLING_TOWER_BASIC, BuildingType.DRILLING_TOWER_ADVANCED]
+		_:
+			return []
 
 func get_building_efficiency(tile_pos: Vector2i) -> float:
 	"""Vypočítá efektivitu budovy na základě damage"""
@@ -969,6 +1045,117 @@ func get_building_efficiency(tile_pos: Vector2i) -> float:
 		var damage = building_data.get("damage", 0.0)
 		return max(0.1, 1.0 - damage * 0.8)  # 80% reduction při max damage
 	return 1.0
+
+func get_building_production_rate(tile_pos: Vector2i, resource_type) -> float:
+	"""Vrátí aktuální produkční rychlost budovy s ohledem na damage"""
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		var building_type = building_data.get("type", -1)
+		var building_def = building_definitions[building_type]
+		
+		if resource_type in building_def.get("production", {}):
+			var base_production = building_def["production"][resource_type]
+			var efficiency = get_building_efficiency(tile_pos)
+			return base_production * efficiency
+	return 0.0
+
+func get_building_consumption_rate(tile_pos: Vector2i, resource_type) -> float:
+	"""Vrátí aktuální spotřebu budovy s ohledem na damage"""
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		var building_type = building_data.get("type", -1)
+		var building_def = building_definitions[building_type]
+		
+		if resource_type in building_def.get("consumption", {}):
+			var base_consumption = building_def["consumption"][resource_type]
+			# Consumption se nezvyšuje s damage - budova prostě méně produkuje
+			return base_consumption
+	return 0.0
+
+func get_building_info(tile_pos: Vector2i) -> Dictionary:
+	"""Vrátí kompletní informace o budově"""
+	if tile_pos in placed_buildings:
+		var building_data = placed_buildings[tile_pos]
+		var building_type = building_data.get("type", -1)
+		var building_def = building_definitions[building_type]
+		
+		return {
+			"name": building_def.get("name", "Unknown"),
+			"type": building_type,
+			"position": building_data.get("position", tile_pos),
+			"size": building_def.get("size", Vector2i(1, 1)),
+			"damage": building_data.get("damage", 0.0),
+			"durability": building_data.get("durability", 1.0),
+			"efficiency": get_building_efficiency(tile_pos),
+			"condition": get_condition_text(building_data.get("damage", 0.0)),
+			"can_repair": can_repair_building(tile_pos),
+			"repair_cost": building_def.get("repair_cost", {}),
+			"production": building_def.get("production", {}),
+			"consumption": building_def.get("consumption", {}),
+			"placement_restriction": building_def.get("placement_restriction", "any")
+		}
+	return {}
+
+func get_buildings_by_type(building_type: BuildingType) -> Array:
+	"""Vrátí všechny budovy daného typu"""
+	var buildings_of_type = []
+	var processed_buildings = {}
+	
+	for building_pos in placed_buildings:
+		var building_data = placed_buildings[building_pos]
+		var building_id = building_data.get("id", -1)
+		
+		if building_id != -1 and not building_id in processed_buildings:
+			if building_data.get("type", -1) == building_type:
+				buildings_of_type.append({
+					"position": building_data.get("position", building_pos),
+					"data": building_data
+				})
+			processed_buildings[building_id] = true
+	
+	return buildings_of_type
+
+func get_total_production(resource_type) -> float:
+	"""Vypočítá celkovou produkci daného zdroje ze všech budov"""
+	var total = 0.0
+	var processed_buildings = {}
+	
+	for building_pos in placed_buildings:
+		var building_data = placed_buildings[building_pos]
+		var building_id = building_data.get("id", -1)
+		
+		if building_id != -1 and not building_id in processed_buildings:
+			var building_type = building_data.get("type", -1)
+			var building_def = building_definitions[building_type]
+			
+			if resource_type in building_def.get("production", {}):
+				var base_production = building_def["production"][resource_type]
+				var efficiency = get_building_efficiency(building_data.get("position", building_pos))
+				total += base_production * efficiency
+			
+			processed_buildings[building_id] = true
+	
+	return total
+
+func get_total_consumption(resource_type) -> float:
+	"""Vypočítá celkovou spotřebu daného zdroje ze všech budov"""
+	var total = 0.0
+	var processed_buildings = {}
+	
+	for building_pos in placed_buildings:
+		var building_data = placed_buildings[building_pos]
+		var building_id = building_data.get("id", -1)
+		
+		if building_id != -1 and not building_id in processed_buildings:
+			var building_type = building_data.get("type", -1)
+			var building_def = building_definitions[building_type]
+			
+			if resource_type in building_def.get("consumption", {}):
+				total += building_def["consumption"][resource_type]
+			
+			processed_buildings[building_id] = true
+	
+	return total
 
 # EXISTING FUNCTIONS (kept for compatibility)
 func get_all_buildings() -> Array:
@@ -1022,22 +1209,6 @@ func debug_force_place_building(building_type: BuildingType, tile_pos: Vector2i)
 	
 	print("Building force-placed successfully")
 
-func reset_buildings():
-	"""Resetuje všechny budovy"""
-	print("=== RESETTING ENHANCED BUILDINGS ===")
-	
-	for sprite in building_sprites:
-		if sprite and sprite.get_parent():
-			sprite.queue_free()
-	building_sprites.clear()
-	
-	placed_buildings.clear()
-	
-	if is_building_mode or is_repair_mode:
-		exit_building_mode()
-	
-	print("All enhanced buildings reset")
-
 # DEBUG FUNCTIONS
 func debug_damage_all_buildings(damage_percent: float):
 	for building_pos in get_all_buildings():
@@ -1053,3 +1224,18 @@ func debug_print_building_info():
 	print("Buildings needing repair: ", get_buildings_needing_repair().size())
 	print("Building mode: ", is_building_mode)
 	print("Repair mode: ", is_repair_mode)
+	print("Selected building type: ", selected_building_type)
+	print("Preview sprite exists: ", preview_sprite != null)
+	print("Preview outline count: ", preview_outline.size())
+	print("Building sprites count: ", building_sprites.size())
+	print("Placed buildings count: ", placed_buildings.size())
+
+func debug_force_disable_modes():
+	"""Debug funkce pro vynucené vypnutí módů"""
+	print("=== DEBUG FORCE DISABLE MODES ===")
+	print("Before: building_mode=", is_building_mode, ", repair_mode=", is_repair_mode)
+	
+	force_exit_all_modes()
+	
+	print("After: building_mode=", is_building_mode, ", repair_mode=", is_repair_mode)
+	print("Modes disabled successfully")

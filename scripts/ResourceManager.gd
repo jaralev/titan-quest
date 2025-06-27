@@ -18,11 +18,11 @@ enum ResourceType {
 # Aktuální množství zdrojů - VÍCE PRO TESTOVÁNÍ
 var current_resources = {
 	ResourceType.ENERGY: 2000.0,      # Zvýšeno z 100
-	ResourceType.OXYGEN: 1000.0,      # Zvýšeno z 50
-	ResourceType.FOOD: 800.0,         # Zvýšeno z 30
-	ResourceType.WATER: 1000.0,       # Zvýšeno z 40
+	ResourceType.OXYGEN: 1500.0,      # Zvýšeno z 50
+	ResourceType.FOOD: 1500.0,         # Zvýšeno z 30
+	ResourceType.WATER: 1500.0,       # Zvýšeno z 40
 	ResourceType.METHANE: 1500.0,     # Zvýšeno z 80
-	ResourceType.BUILDING_MATERIALS: 1000.0  # Zvýšeno z 20
+	ResourceType.BUILDING_MATERIALS: 1500.0  # Zvýšeno z 20
 }
 
 # Production rates (za sekundu)
@@ -47,12 +47,12 @@ var consumption_rates = {
 
 # Maximum capacity
 var max_capacity = {
-	ResourceType.ENERGY: 500.0,
-	ResourceType.OXYGEN: 200.0,
-	ResourceType.FOOD: 150.0,
-	ResourceType.WATER: 200.0,
-	ResourceType.METHANE: 300.0,
-	ResourceType.BUILDING_MATERIALS: 100.0
+	ResourceType.ENERGY: 2000.0,
+	ResourceType.OXYGEN: 2000.0,
+	ResourceType.FOOD: 2000.0,
+	ResourceType.WATER: 2000.0,
+	ResourceType.METHANE: 2000.0,
+	ResourceType.BUILDING_MATERIALS: 2000.0
 }
 
 # Signály

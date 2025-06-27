@@ -91,7 +91,7 @@ func generate_methane_seas():
 				terrain_grid[x][y] = TerrainType.METHANE_SEA
 
 func generate_methane_lakes():
-	"""Generuje GARANTOVANĚ 1-3 metanová jezera ve vnitrozemí"""
+	"""Generuje GARANTOVANĚ 1-3 metanová jezera ve vnitrozemí s přirozenými tvary"""
 	var num_lakes = randi_range(1, 3)
 	var lakes_placed = 0
 	print("Attempting to generate ", num_lakes, " methane lakes...")
@@ -101,25 +101,25 @@ func generate_methane_lakes():
 	var attempts = 0
 	
 	while not first_lake_placed and attempts < 100:
-		var lake_size = randi_range(3, 5)  # Větší jezera pro garantované umístění
-		var start_x = randi_range(5, MAP_WIDTH - lake_size - 5)
-		var start_y = randi_range(5, MAP_HEIGHT - lake_size - 5)
+		var lake_size = randi_range(4, 7)  # Větší pro přirozené tvary
+		var start_x = randi_range(6, MAP_WIDTH - lake_size - 6)
+		var start_y = randi_range(6, MAP_HEIGHT - lake_size - 6)
 		
-		if can_place_lake(start_x, start_y, lake_size):
-			place_lake(start_x, start_y, lake_size)
+		if can_place_organic_lake(start_x, start_y, lake_size):
+			place_organic_lake(start_x, start_y, lake_size)
 			lakes_placed += 1
 			first_lake_placed = true
-			print("✅ GUARANTEED Lake ", lakes_placed, " placed at: (", start_x, ",", start_y, ") size:", lake_size)
+			print("✅ GUARANTEED Organic Lake ", lakes_placed, " placed at: (", start_x, ",", start_y, ") size:", lake_size)
 		
 		attempts += 1
 	
 	if not first_lake_placed:
-		# Fallback - force place smaller lake in center
-		var center_x = MAP_WIDTH / 2 - 1
-		var center_y = MAP_HEIGHT / 2 - 1
-		force_place_lake(center_x, center_y, 2)
+		# Fallback - force place organic lake in center
+		var center_x = MAP_WIDTH / 2 - 2
+		var center_y = MAP_HEIGHT / 2 - 2
+		force_place_organic_lake(center_x, center_y, 3)
 		lakes_placed += 1
-		print("⚠️ FORCED Lake placement at center: (", center_x, ",", center_y, ")")
+		print("⚠️ FORCED Organic Lake placement at center: (", center_x, ",", center_y, ")")
 	
 	# Zbytek jezer - normální umístění
 	for i in range(lakes_placed, num_lakes):
@@ -127,57 +127,154 @@ func generate_methane_lakes():
 		var placed = false
 		
 		while attempts < 50 and not placed:
-			var lake_size = randi_range(2, 6)
-			var start_x = randi_range(4, MAP_WIDTH - lake_size - 4)
-			var start_y = randi_range(4, MAP_HEIGHT - lake_size - 4)
+			var lake_size = randi_range(3, 6)
+			var start_x = randi_range(5, MAP_WIDTH - lake_size - 5)
+			var start_y = randi_range(5, MAP_HEIGHT - lake_size - 5)
 			
-			if can_place_lake(start_x, start_y, lake_size):
-				place_lake(start_x, start_y, lake_size)
+			if can_place_organic_lake(start_x, start_y, lake_size):
+				place_organic_lake(start_x, start_y, lake_size)
 				lakes_placed += 1
 				placed = true
-				print("✅ Lake ", lakes_placed, " placed at: (", start_x, ",", start_y, ") size:", lake_size)
+				print("✅ Organic Lake ", lakes_placed, " placed at: (", start_x, ",", start_y, ") size:", lake_size)
 			
 			attempts += 1
 		
 		if not placed:
-			print("⚠️ Could not place additional lake ", i+1, " after 50 attempts")
+			print("⚠️ Could not place additional organic lake ", i+1, " after 50 attempts")
 	
-	print("Total lakes placed: ", lakes_placed, "/", num_lakes)
+	print("Total organic lakes placed: ", lakes_placed, "/", num_lakes)
 
-func can_place_lake(start_x: int, start_y: int, size: int) -> bool:
-	"""Zkontroluje, zda lze umístit jezero na danou pozici"""
-	var width = randi_range(2, size)
-	var height = size - width + 2
-	height = max(2, min(height, 6))
-	
-	# Zkontroluj všechny pozice
-	for x in range(start_x, start_x + width):
-		for y in range(start_y, start_y + height):
-			if x >= MAP_WIDTH or y >= MAP_HEIGHT:
-				return false
-			if terrain_grid[x][y] != TerrainType.NORMAL_SURFACE:
-				return false
+func can_place_organic_lake(center_x: int, center_y: int, max_radius: int) -> bool:
+	"""Zkontroluje, zda lze umístit organické jezero kolem středu"""
+	# Zkontroluj kruhovou oblast kolem středu
+	for dx in range(-max_radius, max_radius + 1):
+		for dy in range(-max_radius, max_radius + 1):
+			var x = center_x + dx
+			var y = center_y + dy
+			
+			# Zkontroluj pouze tiles v dosahu jezera
+			var distance = sqrt(dx * dx + dy * dy)
+			if distance <= max_radius:
+				if x < 0 or x >= MAP_WIDTH or y < 0 or y >= MAP_HEIGHT:
+					return false
+				if terrain_grid[x][y] != TerrainType.NORMAL_SURFACE:
+					return false
 	
 	return true
 
-func place_lake(start_x: int, start_y: int, size: int):
-	"""Umístí jezero na danou pozici"""
-	var width = randi_range(2, size)
-	var height = size - width + 2
-	height = max(2, min(height, 6))
+func place_organic_lake(center_x: int, center_y: int, max_radius: int):
+	"""Umístí jezero s organickým, nepravidelným tvarem"""
+	print("Generating organic lake shape at (", center_x, ",", center_y, ") with radius ", max_radius)
 	
-	for x in range(start_x, start_x + width):
-		for y in range(start_y, start_y + height):
-			if x < MAP_WIDTH and y < MAP_HEIGHT:
-				terrain_grid[x][y] = TerrainType.METHANE_LAKE
+	# Generuj několik 'seed' bodů pro organický tvar
+	var seed_points = []
+	var num_seeds = randi_range(3, 6)
+	
+	for i in range(num_seeds):
+		var angle = i * 2 * PI / num_seeds + randf_range(-0.5, 0.5)
+		var radius = randf_range(max_radius * 0.3, max_radius * 0.8)
+		var seed_x = center_x + int(cos(angle) * radius)
+		var seed_y = center_y + int(sin(angle) * radius)
+		seed_points.append(Vector2i(seed_x, seed_y))
+	
+	# Vytvoř mapu 'influence' pro každý bod v oblasti
+	var influenced_tiles = {}
+	
+	for dx in range(-max_radius - 1, max_radius + 2):
+		for dy in range(-max_radius - 1, max_radius + 2):
+			var x = center_x + dx
+			var y = center_y + dy
+			
+			if x >= 0 and x < MAP_WIDTH and y >= 0 and y < MAP_HEIGHT:
+				if terrain_grid[x][y] == TerrainType.NORMAL_SURFACE:
+					var tile_pos = Vector2i(x, y)
+					var influence_score = calculate_lake_influence(tile_pos, Vector2i(center_x, center_y), seed_points, max_radius)
+					
+					if influence_score > 0.0:
+						influenced_tiles[tile_pos] = influence_score
+	
+	# Aplikuj 'noise' a threshold pro organický tvar
+	for tile_pos in influenced_tiles:
+		var influence = influenced_tiles[tile_pos]
+		var noise_value = generate_organic_noise(tile_pos.x, tile_pos.y)
+		var final_score = influence + noise_value * 0.3
+		
+		# Threshold pro umístění - vyšší = menší jezero
+		var threshold = randf_range(0.4, 0.6)
+		
+		if final_score > threshold:
+			terrain_grid[tile_pos.x][tile_pos.y] = TerrainType.METHANE_LAKE
+
+func calculate_lake_influence(tile_pos: Vector2i, center: Vector2i, seed_points: Array, max_radius: int) -> float:
+	"""Vypočítá 'influence' score pro dlaždici na základě vzdálenosti od seed pointů"""
+	var total_influence = 0.0
+	
+	# Základní influence od středu
+	var center_distance = tile_pos.distance_to(Vector2(center.x, center.y))
+	var center_influence = max(0.0, 1.0 - center_distance / max_radius)
+	total_influence += center_influence * 0.5
+	
+	# Influence od seed pointů
+	for seed_point in seed_points:
+		var seed_distance = tile_pos.distance_to(Vector2(seed_point.x, seed_point.y))
+		var seed_radius = max_radius * 0.6
+		var seed_influence = max(0.0, 1.0 - seed_distance / seed_radius)
+		total_influence += seed_influence * 0.3
+	
+	return min(1.0, total_influence)
+
+func generate_organic_noise(x: int, y: int) -> float:
+	"""Generuje organický 'noise' pro přirozený tvar jezera"""
+	# Jednoduchý pseudo-random noise na základě pozice
+	var noise_seed = x * 73 + y * 37 + (x * y) % 13
+	var random_gen = RandomNumberGenerator.new()
+	random_gen.seed = noise_seed
+	
+	# Kombinuj několik frekvencí pro organický efekt
+	var noise1 = random_gen.randf_range(-1.0, 1.0) * 0.5
+	var noise2 = sin(x * 0.3) * cos(y * 0.4) * 0.3
+	var noise3 = sin(x * 0.7 + y * 0.6) * 0.2
+	
+	return noise1 + noise2 + noise3
+
+func force_place_organic_lake(center_x: int, center_y: int, radius: int):
+	"""Vynuceně umístí malé organické jezero (pro guaranteed placement)"""
+	print("Force placing organic lake at (", center_x, ",", center_y, ")")
+	
+	# Vytvoř malé, ale stále organické jezero
+	var seed_points = [
+		Vector2i(center_x, center_y),
+		Vector2i(center_x + 1, center_y),
+		Vector2i(center_x, center_y + 1),
+		Vector2i(center_x - 1, center_y + 1)
+	]
+	
+	for seed_point in seed_points:
+		if seed_point.x >= 0 and seed_point.x < MAP_WIDTH and seed_point.y >= 0 and seed_point.y < MAP_HEIGHT:
+			if terrain_grid[seed_point.x][seed_point.y] == TerrainType.NORMAL_SURFACE:
+				terrain_grid[seed_point.x][seed_point.y] = TerrainType.METHANE_LAKE
+	
+	# Přidej několik náhodných bodů kolem pro organičnost
+	for i in range(3):
+		var random_x = center_x + randi_range(-2, 2)
+		var random_y = center_y + randi_range(-2, 2)
+		
+		if random_x >= 0 and random_x < MAP_WIDTH and random_y >= 0 and random_y < MAP_HEIGHT:
+			if terrain_grid[random_x][random_y] == TerrainType.NORMAL_SURFACE and randf() < 0.6:
+				terrain_grid[random_x][random_y] = TerrainType.METHANE_LAKE
+
+# Zachovat původní funkce pro kompatibilitu
+func can_place_lake(start_x: int, start_y: int, size: int) -> bool:
+	"""Zkontroluje, zda lze umístit jezero na danou pozici (legacy)"""
+	return can_place_organic_lake(start_x + size/2, start_y + size/2, size/2)
+
+func place_lake(start_x: int, start_y: int, size: int):
+	"""Umístí jezero na danou pozici (legacy - nyní používá organické tvary)"""
+	place_organic_lake(start_x + size/2, start_y + size/2, size/2)
 
 func force_place_lake(start_x: int, start_y: int, size: int):
-	"""Vynuceně umístí malé jezero (pro garantované umístění)"""
-	for x in range(start_x, start_x + size):
-		for y in range(start_y, start_y + size):
-			if x < MAP_WIDTH and y < MAP_HEIGHT and x >= 0 and y >= 0:
-				if terrain_grid[x][y] == TerrainType.NORMAL_SURFACE:
-					terrain_grid[x][y] = TerrainType.METHANE_LAKE
+	"""Vynuceně umístí malé jezero (legacy)"""
+	force_place_organic_lake(start_x, start_y, size)
 
 func generate_mountains():
 	"""Generuje GARANTOVANĚ alespoň 1 ledové hory, celkově více hor"""
@@ -305,67 +402,8 @@ func get_source_id_for_terrain(terrain_type: TerrainType) -> int:
 		_:
 			return 0
 
-func _input(event):
-	"""Input handling pro testování"""
-	if event.is_action_pressed("ui_accept"):  # SPACE nebo ENTER
-		print("=== REGENERATING MAP ===")
-		
-		# Reset všech systémů
-		reset_game_state()
-		
-		# Regeneruj mapu
-		generate_map()
-		render_map()
-		print("Map regenerated!")
-	
-	if event.is_action_pressed("ui_cancel"):  # ESC
-		print("=== MAP STATISTICS ===")
-		count_terrain_types()
-
-	if event.is_action_pressed("ui_select"):  # TAB key - debug weather
-		var weather_system = get_node("WeatherSystem")
-		if weather_system:
-			weather_system.trigger_random_disaster()
-			print("Debug: Triggered random disaster")
-		
-func reset_game_state():
-	"""Resetuje celý herní stav na začátek"""
-	print("=== RESETTING GAME STATE ===")
-	
-	# Reset resources
-	if has_node("/root/ResourceManager"):
-		var resource_manager = get_node("/root/ResourceManager")
-		resource_manager.reset_to_initial_state()
-	
-	# Reset buildings
-	if has_node("BuildingSystem"):
-		var building_system = get_node("BuildingSystem")
-		building_system.reset_buildings()
-	
-	# Reset TileInspector (zavři otevřené inspekce)
-	if has_node("TileInspector"):
-		var tile_inspector = get_node("TileInspector")
-		if tile_inspector.has_method("hide_inspection"):
-			tile_inspector.hide_inspection()
-		print("TileInspector reset")
-	
-	# Reset Weather System
-	if has_node("WeatherSystem"):
-		var weather_system = get_node("WeatherSystem")
-		if weather_system.has_method("change_weather"):
-			weather_system.change_weather(weather_system.WeatherType.CLEAR)
-		print("WeatherSystem reset to clear")
-	
-	# Reset GameManager (pokud existuje)
-	var game_manager = get_node_or_null("/root/GameManager")
-	if not game_manager:
-		game_manager = get_tree().get_first_node_in_group("game_manager")
-	
-	if game_manager and game_manager.has_method("reset_statistics"):
-		game_manager.reset_statistics()
-		print("GameManager statistics reset")
-	
-	print("Game state reset complete")
+# INPUT HANDLING REMOVED - Now handled by GameManager
+# All input is now centralized in GameManager.gd
 
 func count_terrain_types():
 	"""Spočítá a vypíše statistiky terénu"""
@@ -398,6 +436,39 @@ func count_terrain_types():
 	
 	if requirements_met:
 		print("✅ All terrain requirements met")
+
+# LEGACY RESET SYSTEM - Kept for fallback compatibility
+func reset_game_state():
+	"""DEPRECATED: Použijte GameManager.reset_game_state() místo této funkce"""
+	print("⚠️ Using deprecated reset_game_state - GameManager should handle this")
+	
+	# Reset resources
+	if has_node("/root/ResourceManager"):
+		var resource_manager = get_node("/root/ResourceManager")
+		if resource_manager.has_method("reset_to_initial_state"):
+			resource_manager.reset_to_initial_state()
+	
+	# Reset buildings
+	if has_node("BuildingSystem"):
+		var building_system = get_node("BuildingSystem")
+		if building_system.has_method("reset_buildings"):
+			building_system.reset_buildings()
+	
+	# Reset TileInspector (zavři otevřené inspekce)
+	if has_node("TileInspector"):
+		var tile_inspector = get_node("TileInspector")
+		if tile_inspector.has_method("hide_inspection"):
+			tile_inspector.hide_inspection()
+		print("TileInspector reset")
+	
+	# Reset Weather System
+	if has_node("WeatherSystem"):
+		var weather_system = get_node("WeatherSystem")
+		if weather_system.has_method("change_weather"):
+			weather_system.change_weather(weather_system.WeatherType.CLEAR)
+		print("WeatherSystem reset to clear")
+	
+	print("Legacy game state reset complete")
 
 # Debug functions
 func debug_force_terrain(x: int, y: int, terrain_type: TerrainType):

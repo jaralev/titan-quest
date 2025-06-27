@@ -11,6 +11,12 @@ var building_container: VBoxContainer
 var repair_button: Button
 var repair_status_label: Label
 
+# Custom tooltip system
+var custom_tooltip: PanelContainer
+var tooltip_label: RichTextLabel
+var tooltip_visible = false
+var current_hover_button: Button = null
+
 func _ready():
 	print("=== Enhanced BuildingUI initialized ===")
 	
@@ -22,6 +28,7 @@ func _ready():
 		building_system = get_node("../../BuildingSystem")
 	
 	create_enhanced_building_ui()
+	create_custom_tooltip()
 	
 	# Připoj signály
 	if building_system:
@@ -30,6 +37,85 @@ func _ready():
 	
 	# Pozice UI
 	position = Vector2(get_viewport().size.x - 380, 50)
+
+func create_custom_tooltip():
+	"""Vytvoří vlastní tooltip s BBCode podporou v nejvyšší vrstvě"""
+	# Vytvoř CanvasLayer pro nejvyšší vrstvu
+	var tooltip_layer = CanvasLayer.new()
+	tooltip_layer.layer = 1000  # Velmi vysoká hodnota pro top layer
+	tooltip_layer.name = "TooltipLayer"
+	
+	custom_tooltip = PanelContainer.new()
+	custom_tooltip.visible = false
+	custom_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	# Styling tooltipa
+	var tooltip_style = StyleBoxFlat.new()
+	tooltip_style.bg_color = Color(0.1, 0.1, 0.1, 0.95)
+	tooltip_style.corner_radius_top_left = 6
+	tooltip_style.corner_radius_top_right = 6
+	tooltip_style.corner_radius_bottom_left = 6
+	tooltip_style.corner_radius_bottom_right = 6
+	tooltip_style.set_border_width_all(1)
+	tooltip_style.border_color = Color.YELLOW
+	custom_tooltip.add_theme_stylebox_override("panel", tooltip_style)
+	
+	# RichTextLabel pro BBCode support
+	tooltip_label = RichTextLabel.new()
+	tooltip_label.bbcode_enabled = true
+	tooltip_label.fit_content = true
+	tooltip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tooltip_label.custom_minimum_size = Vector2(300, 100)
+	
+	custom_tooltip.add_child(tooltip_label)
+	tooltip_layer.add_child(custom_tooltip)
+	
+	# Přidej CanvasLayer na nejvyšší úroveň scény
+	get_tree().current_scene.add_child(tooltip_layer)
+
+func show_custom_tooltip(button: Button, tooltip_text: String):
+	"""Zobrazí vlastní tooltip"""
+	if tooltip_visible and current_hover_button == button:
+		return
+	
+	current_hover_button = button
+	tooltip_label.text = tooltip_text
+	
+	# Pozice tooltipa vedle tlačítka
+	var button_global_pos = button.global_position
+	var tooltip_pos = Vector2(
+		button_global_pos.x - 320,  # Vlevo od tlačítka
+		button_global_pos.y
+	)
+	
+	# Ošetř okraje obrazovky
+	var viewport_size = get_viewport().size
+	if tooltip_pos.x < 10:
+		tooltip_pos.x = button_global_pos.x + button.size.x + 10  # Vpravo od tlačítka
+	if tooltip_pos.y + 200 > viewport_size.y:
+		tooltip_pos.y = viewport_size.y - 200
+	
+	custom_tooltip.position = tooltip_pos
+	custom_tooltip.visible = true
+	tooltip_visible = true
+	
+	# Fade in animace
+	custom_tooltip.modulate = Color.TRANSPARENT
+	var tween = create_tween()
+	tween.tween_property(custom_tooltip, "modulate", Color.WHITE, 0.2)
+
+func hide_custom_tooltip():
+	"""Skryje vlastní tooltip"""
+	if not tooltip_visible:
+		return
+	
+	tooltip_visible = false
+	current_hover_button = null
+	
+	# Fade out animace
+	var tween = create_tween()
+	tween.tween_property(custom_tooltip, "modulate", Color.TRANSPARENT, 0.1)
+	tween.tween_callback(func(): custom_tooltip.visible = false)
 
 func create_enhanced_building_ui():
 	"""Vytvoří vylepšené UI pro budovy"""
@@ -201,17 +287,20 @@ func create_enhanced_building_button(building_type, building_def: Dictionary, is
 	elif building_type == building_system.BuildingType.HABITAT:
 		button.add_theme_color_override("font_color", Color.LIGHT_GREEN)
 	
-	# Tooltip s detailními informacemi
-	var tooltip = create_detailed_tooltip(building_def, is_advanced)
-	button.tooltip_text = tooltip
+	# Vlastní tooltip systém
+	var tooltip_text = create_detailed_tooltip(building_def, is_advanced)
 	
-	# Callback
+	# Mouse hover události
+	button.mouse_entered.connect(func(): show_custom_tooltip(button, tooltip_text))
+	button.mouse_exited.connect(func(): hide_custom_tooltip())
+	
+	# Callback pro kliknutí
 	button.pressed.connect(func(): _on_building_selected(building_type))
 	
 	return button
 
 func create_detailed_tooltip(building_def: Dictionary, is_advanced: bool) -> String:
-	"""Vytvoří detailní tooltip pro budovu"""
+	"""Vytvoří detailní tooltip pro budovu s BBCode formátováním"""
 	var tooltip = "[b]%s[/b]\n" % building_def["name"]
 	
 	if is_advanced:
@@ -262,12 +351,20 @@ func create_detailed_tooltip(building_def: Dictionary, is_advanced: bool) -> Str
 	var restriction = building_def.get("placement_restriction", "any")
 	if restriction != "any":
 		tooltip += "\n[color=yellow]Special Placement Required[/color]"
+		match restriction:
+			"near_methane":
+				tooltip += "\n[color=yellow]• Must be near methane lake/sea[/color]"
+			"near_mountains":
+				tooltip += "\n[color=yellow]• Must be near ice mountains[/color]"
+			"methane_sea_only":
+				tooltip += "\n[color=yellow]• Must be built on methane sea[/color]"
 	
 	return tooltip
 
 func _on_building_selected(building_type):
 	"""Callback pro výběr budovy"""
 	print("Selected building: ", building_system.building_definitions[building_type]["name"])
+	hide_custom_tooltip()  # Skryj tooltip při kliknutí
 	building_system.enter_building_mode(building_type)
 
 func _on_repair_mode_pressed():
@@ -283,7 +380,6 @@ func _on_building_repaired(building_type, position):
 func _on_victory():
 	"""Callback při vítězství"""
 	print("🎉 VICTORY ACHIEVED! 🎉")
-	# Zde můžete přidat victory screen nebo jiné efekty
 
 func update_repair_status():
 	"""Aktualizuje status repair módu"""
@@ -307,6 +403,21 @@ func _process(_delta):
 	if Engine.get_process_frames() % 60 == 0:  # 60 FPS = 1 sekunda
 		update_repair_status()
 
+# Reset funkce pro GameManager
+func reset_ui():
+	"""Resetuje UI do výchozího stavu"""
+	hide_custom_tooltip()
+	update_repair_status()
+	print("BuildingUI reset")
+
+func deselect_all():
+	"""Zruší všechny výběry"""
+	hide_custom_tooltip()
+
+func clear_selection():
+	"""Vyčistí výběr"""
+	hide_custom_tooltip()
+
 # Debug functions
 func debug_print_ui_status():
 	"""Debug informace o UI"""
@@ -315,3 +426,4 @@ func debug_print_ui_status():
 	print("Resource manager connected: ", resource_manager != null)
 	print("UI position: ", position)
 	print("UI visible: ", visible)
+	print("Custom tooltip visible: ", tooltip_visible)

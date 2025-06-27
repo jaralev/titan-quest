@@ -1,0 +1,56 @@
+[gd_scene load_steps=10 format=3 uid="uid://biweeot763lsl"]
+
+[ext_resource type="Script" uid="uid://n8bcvqfpfa4k" path="res://scripts/MapGenerator.gd" id="1_0wfyh"]
+[ext_resource type="TileSet" uid="uid://bee4f2vx00vv2" path="res://assets/tilesets/terrain_tileset.tres" id="2_jyhfs"]
+[ext_resource type="Script" uid="uid://cye7x65xnmh62" path="res://scripts/Camera2D.gd" id="2_sugp2"]
+[ext_resource type="Script" uid="uid://b2h2a3b42yvep" path="res://scripts/BuildingSystem.gd" id="4_tefeu"]
+[ext_resource type="Script" uid="uid://014pi8mxuf23" path="res://scripts/ResourceUI.gd" id="5_o6xl0"]
+[ext_resource type="Script" uid="uid://debdhl2wvgiu7" path="res://scripts/BuildingUI.gd" id="6_tipki"]
+[ext_resource type="Script" uid="uid://b6mmankp0e47n" path="res://scripts/weatherUI.gd" id="7_tipki"]
+[ext_resource type="Script" uid="uid://ddfc101qfj5v3" path="res://scripts/WeatherSystem.gd" id="8_85g3d"]
+[ext_resource type="Script" uid="uid://brry36tc608m6" path="res://scripts/TileInspector.gd" id="9_85g3d"]
+
+[node name="main" type="Node2D"]
+script = ExtResource("1_0wfyh")
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("2_jyhfs")
+rendering_quadrant_size = 64
+format = 2
+layer_0/name = "terrain"
+layer_1/name = "buildings"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("2_sugp2")
+
+[node name="BuildingSystem" type="Node2D" parent="."]
+script = ExtResource("4_tefeu")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ResourceUI" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("5_o6xl0")
+
+[node name="BuildingUI" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("6_tipki")
+
+[node name="WeatherUI" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("7_tipki")
+
+[node name="WeatherSystem" type="Node2D" parent="."]
+script = ExtResource("8_85g3d")
+
+[node name="TileInspector" type="Node2D" parent="."]
+script = ExtResource("9_85g3d")
