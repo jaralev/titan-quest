@@ -73,13 +73,14 @@ func create_custom_tooltip():
 	# Přidej CanvasLayer na nejvyšší úroveň scény
 	get_tree().current_scene.add_child(tooltip_layer)
 
-func show_custom_tooltip(button: Button, tooltip_text: String):
+# OPRAVA 1: Přejmenování parametru tooltip_text na building_tooltip_text
+func show_custom_tooltip(button: Button, building_tooltip_text: String):
 	"""Zobrazí vlastní tooltip"""
 	if tooltip_visible and current_hover_button == button:
 		return
 	
 	current_hover_button = button
-	tooltip_label.text = tooltip_text
+	tooltip_label.text = building_tooltip_text
 	
 	# Pozice tooltipa vedle tlačítka
 	var button_global_pos = button.global_position
@@ -200,7 +201,7 @@ func create_building_categories():
 	# METHANE PROCESSORS
 	create_category_header("🔥 METHANE PROCESSORS")
 	var methane_note = Label.new()
-	methane_note.text = "   (Must be near methane lake/sea)"
+	# methane_note.text = "   (Must be near methane lake/sea)"
 	methane_note.add_theme_font_size_override("font_size", 9)
 	methane_note.add_theme_color_override("font_color", Color.YELLOW)
 	building_container.add_child(methane_note)
@@ -213,7 +214,7 @@ func create_building_categories():
 	# DRILLING TOWERS
 	create_category_header("⚒️ DRILLING TOWERS")
 	var drilling_note = Label.new()
-	drilling_note.text = "   (Must be near ice mountains)"
+	# drilling_note.text = "   (Must be near ice mountains)"
 	drilling_note.add_theme_font_size_override("font_size", 9)
 	drilling_note.add_theme_color_override("font_color", Color.YELLOW)
 	building_container.add_child(drilling_note)
@@ -226,7 +227,7 @@ func create_building_categories():
 	# ESCAPE VESSEL
 	create_category_header("🚀 ESCAPE VESSEL")
 	var vessel_note = Label.new()
-	vessel_note.text = "   (Must be built on methane sea - VICTORY!)"
+	# vessel_note.text = "   (Must be built on methane sea - VICTORY!)"
 	vessel_note.add_theme_font_size_override("font_size", 9)
 	vessel_note.add_theme_color_override("font_color", Color.GOLD)
 	building_container.add_child(vessel_note)
@@ -251,7 +252,8 @@ func create_single_building_button(building_type):
 	var button = create_enhanced_building_button(building_type, building_def, false)
 	building_container.add_child(button)
 
-func create_building_variant_buttons(category: String, building_types: Array):
+# OPRAVA 2: Přidán underscore k nepoužívanému parametru _category
+func create_building_variant_buttons(_category: String, building_types: Array):
 	"""Vytvoří tlačítka pro varianty budovy"""
 	var hbox = HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 5)
@@ -288,10 +290,11 @@ func create_enhanced_building_button(building_type, building_def: Dictionary, is
 		button.add_theme_color_override("font_color", Color.LIGHT_GREEN)
 	
 	# Vlastní tooltip systém
-	var tooltip_text = create_detailed_tooltip(building_def, is_advanced)
+	# OPRAVA 3: Přejmenování proměnné tooltip_text na building_tooltip_content
+	var building_tooltip_content = create_detailed_tooltip(building_def, is_advanced)
 	
 	# Mouse hover události
-	button.mouse_entered.connect(func(): show_custom_tooltip(button, tooltip_text))
+	button.mouse_entered.connect(func(): show_custom_tooltip(button, building_tooltip_content))
 	button.mouse_exited.connect(func(): hide_custom_tooltip())
 	
 	# Callback pro kliknutí
@@ -372,7 +375,8 @@ func _on_repair_mode_pressed():
 	building_system.enter_repair_mode()
 	update_repair_status()
 
-func _on_building_repaired(building_type, position):
+# OPRAVA 4 a 5: Přidán underscore k nepoužívanému parametru a přejmenování position na building_pos
+func _on_building_repaired(building_type, _building_pos):
 	"""Callback při opravě budovy"""
 	print("Building repaired: ", building_system.building_definitions[building_type]["name"])
 	update_repair_status()

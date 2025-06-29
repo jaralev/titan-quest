@@ -328,7 +328,7 @@ func _ready():
 
 func load_building_textures():
 	"""Načte textury pro všechny budovy včetně variant"""
-	print("Loading enhanced building textures...")
+#	print("Loading enhanced building textures...")
 	
 	var texture_paths = {
 		BuildingType.HABITAT: "res://assets/buildings/habitat.png",
@@ -353,7 +353,7 @@ func load_building_textures():
 			if texture:
 				building_textures[building_type] = texture
 				loaded_count += 1
-				print("✅ Loaded texture: ", path)
+#				print("✅ Loaded texture: ", path)
 			else:
 				print("❌ Failed to load texture: ", path)
 		else:
@@ -365,9 +365,9 @@ func load_building_textures():
 		print("⚠️ No textures loaded - all buildings will use colored placeholders")
 	
 	# Debug info
-	print("Available textures:")
-	for building_type in building_textures:
-		print("  - ", building_definitions[building_type]["name"])
+	#print("Available textures:")
+	#for building_type in building_textures:
+		#print("  - ", building_definitions[building_type]["name"])
 
 # Reset flag - pro ochranu před aktivací během resetu
 var _is_resetting = false
@@ -702,8 +702,7 @@ func create_placeholder_sprite(sprite: Sprite2D, size: Vector2i):
 	
 	image.fill(color)
 	
-	var texture = ImageTexture.new()
-	texture.create_from_image(image)
+	var texture = ImageTexture.create_from_image(image)
 	sprite.texture = texture
 	
 	print("Created placeholder texture with color: ", color)
@@ -804,8 +803,8 @@ func repair_building_at_position(tile_pos: Vector2i, repair_amount: float = 1.0)
 	"""Opraví budovu na pozici"""
 	if tile_pos in placed_buildings:
 		var building_data = placed_buildings[tile_pos]
-		var building_type = building_data.get("type", -1)
-		var building_def = building_definitions[building_type]
+		# var building_type = building_data.get("type", -1)
+		# var building_def = building_definitions[building_type]
 		
 		if "damage" in building_data and building_data["damage"] > 0.0:
 			# Oprav damage

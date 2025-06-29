@@ -648,7 +648,7 @@ func create_info_panel():
 	# Destroy button (debug - můžete odstranit)
 	var destroy_button = Button.new()
 	destroy_button.name = "DestroyButton"
-	destroy_button.text = "💥 DEBUG"
+	destroy_button.text = "💥 Destroy"
 	destroy_button.custom_minimum_size = Vector2(100, 35)
 	destroy_button.visible = false
 	destroy_button.add_theme_color_override("font_color", Color.RED)

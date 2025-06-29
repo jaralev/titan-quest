@@ -398,7 +398,8 @@ func _on_building_repaired(building_type, position):
 	buildings_repaired += 1
 	show_repair_notification(building_type, position)
 
-func _on_weather_changed(weather_type, severity):
+# OPRAVA 1: Přidán underscore k nepoužívanému parametru _severity
+func _on_weather_changed(weather_type, _severity):
 	"""Callback při změně počasí"""
 	if weather_type != 0:  # Not CLEAR
 		disasters_survived += 1
@@ -412,16 +413,17 @@ func show_repair_notification(building_type, position):
 	if building_system and building_type in building_system.building_definitions:
 		building_name = building_system.building_definitions[building_type]["name"]
 	
-	var notification = create_notification("🔧 Building Repaired", 
+	# OPRAVA 2: Přejmenování proměnné notification na repair_notification
+	var repair_notification = create_notification("🔧 Building Repaired", 
 		"%s at %s has been repaired" % [building_name, str(position)])
 	
-	repair_notifications.add_child(notification)
+	repair_notifications.add_child(repair_notification)
 	
 	# Auto-remove after 3 seconds
 	get_tree().create_timer(3.0).timeout.connect(
 		func(): 
-			if notification and is_instance_valid(notification):
-				notification.queue_free()
+			if repair_notification and is_instance_valid(repair_notification):
+				repair_notification.queue_free()
 	)
 
 func create_notification(title: String, message: String) -> Control:
@@ -473,9 +475,10 @@ func _on_quit_game_pressed():
 	print("Quitting game...")
 	get_tree().quit()
 
+# OPRAVA 3: Použití float division místo integer division
 func format_time(seconds: float) -> String:
 	"""Formátuje čas do čitelné podoby"""
-	var minutes = int(seconds) / 60
+	var minutes = int(seconds) / 60.0
 	var secs = int(seconds) % 60
 	return "%02d:%02d" % [minutes, secs]
 
@@ -512,8 +515,11 @@ func debug_print_scene_tree():
 	print("=== SCENE TREE DEBUG ===")
 	var main_node = get_tree().current_scene
 	print("Current scene: ", main_node.name if main_node else "None")
-	print("Current scene path: ", main_node.get_path() if main_node else "None")
-	print("Current scene script: ", str(main_node.get_script()) if main_node and main_node.get_script() else "None")
+	# OPRAVA 4: Zajištění kompatibilních typů v ternary operátoru
+	var scene_path = main_node.get_path() if main_node else NodePath()
+	print("Current scene path: ", str(scene_path))
+	var script_resource = main_node.get_script() if main_node and main_node.get_script() else null
+	print("Current scene script: ", str(script_resource) if script_resource else "None")
 	
 	if main_node:
 		print("Main node children:")

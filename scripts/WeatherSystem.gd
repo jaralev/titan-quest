@@ -252,7 +252,7 @@ func create_screen_shake(severity: DisasterSeverity):
 		return
 	
 	var shake_intensity = get_severity_multiplier(severity) * 5.0  # Snížena intenzita
-	var shake_duration = 1.0  # Zkrácena délka
+	# var shake_duration = 1.0  # Zkrácena délka
 	
 	# Kill previous shake
 	if shake_tween and is_instance_valid(shake_tween):

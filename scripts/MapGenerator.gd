@@ -65,13 +65,13 @@ func generate_methane_seas():
 	# Horní a dolní okraj
 	for x in range(MAP_WIDTH):
 		# Horní okraj (první 2-3 řádky)
-		var sea_depth = randi_range(2, 3)
+		var sea_depth = randi_range(1, 2)
 		for y in range(sea_depth):
 			if y < MAP_HEIGHT:
 				terrain_grid[x][y] = TerrainType.METHANE_SEA
 		
 		# Dolní okraj (poslední 2-3 řádky)
-		sea_depth = randi_range(2, 3)
+		sea_depth = randi_range(1, 2)
 		for y in range(MAP_HEIGHT - sea_depth, MAP_HEIGHT):
 			if y >= 0:
 				terrain_grid[x][y] = TerrainType.METHANE_SEA
@@ -79,7 +79,7 @@ func generate_methane_seas():
 	# Levý a pravý okraj
 	for y in range(MAP_HEIGHT):
 		# Levý okraj (první 2-3 sloupce)
-		var sea_depth = randi_range(2, 3)
+		var sea_depth = randi_range(1, 3)
 		for x in range(sea_depth):
 			if x < MAP_WIDTH:
 				terrain_grid[x][y] = TerrainType.METHANE_SEA
@@ -109,17 +109,18 @@ func generate_methane_lakes():
 			place_organic_lake(start_x, start_y, lake_size)
 			lakes_placed += 1
 			first_lake_placed = true
-			print("✅ GUARANTEED Organic Lake ", lakes_placed, " placed at: (", start_x, ",", start_y, ") size:", lake_size)
+			# print("✅ GUARANTEED Organic Lake ", lakes_placed, " placed at: (", start_x, ",", start_y, ") size:", lake_size)
 		
 		attempts += 1
 	
 	if not first_lake_placed:
 		# Fallback - force place organic lake in center
-		var center_x = MAP_WIDTH / 2 - 2
-		var center_y = MAP_HEIGHT / 2 - 2
-		force_place_organic_lake(center_x, center_y, 3)
+		# OPRAVA 1 a 2: Použití float division pro center výpočty
+		var center_x = MAP_WIDTH / 2.0 - 2
+		var center_y = MAP_HEIGHT / 2.0 - 2
+		force_place_organic_lake(int(center_x), int(center_y), 3)
 		lakes_placed += 1
-		print("⚠️ FORCED Organic Lake placement at center: (", center_x, ",", center_y, ")")
+		print("⚠️ FORCED Organic Lake placement at center: (", int(center_x), ",", int(center_y), ")")
 	
 	# Zbytek jezer - normální umístění
 	for i in range(lakes_placed, num_lakes):
@@ -237,7 +238,8 @@ func generate_organic_noise(x: int, y: int) -> float:
 	
 	return noise1 + noise2 + noise3
 
-func force_place_organic_lake(center_x: int, center_y: int, radius: int):
+# OPRAVA 3: Přidán underscore k nepoužívanému parametru _radius
+func force_place_organic_lake(center_x: int, center_y: int, _radius: int):
 	"""Vynuceně umístí malé organické jezero (pro guaranteed placement)"""
 	print("Force placing organic lake at (", center_x, ",", center_y, ")")
 	
@@ -266,11 +268,13 @@ func force_place_organic_lake(center_x: int, center_y: int, radius: int):
 # Zachovat původní funkce pro kompatibilitu
 func can_place_lake(start_x: int, start_y: int, size: int) -> bool:
 	"""Zkontroluje, zda lze umístit jezero na danou pozici (legacy)"""
-	return can_place_organic_lake(start_x + size/2, start_y + size/2, size/2)
+	# OPRAVA 4, 5, 6: Použití float division pro size/2 výpočty
+	return can_place_organic_lake(start_x + int(size / 2.0), start_y + int(size / 2.0), int(size / 2.0))
 
 func place_lake(start_x: int, start_y: int, size: int):
 	"""Umístí jezero na danou pozici (legacy - nyní používá organické tvary)"""
-	place_organic_lake(start_x + size/2, start_y + size/2, size/2)
+	# OPRAVA 7, 8, 9: Použití float division pro size/2 výpočty
+	place_organic_lake(start_x + int(size / 2.0), start_y + int(size / 2.0), int(size / 2.0))
 
 func force_place_lake(start_x: int, start_y: int, size: int):
 	"""Vynuceně umístí malé jezero (legacy)"""
@@ -295,7 +299,7 @@ func generate_mountains():
 			place_mountain_cluster(mountain_x, mountain_y)
 			mountains_placed += 1
 			first_mountains_placed = true
-			print("✅ GUARANTEED Mountain cluster ", mountains_placed, " placed at: (", mountain_x, ",", mountain_y, ")")
+			# print("✅ GUARANTEED Mountain cluster ", mountains_placed, " placed at: (", mountain_x, ",", mountain_y, ")")
 		
 		attempts += 1
 	
